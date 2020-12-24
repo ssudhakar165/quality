@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[36]:
+# In[1]:
 
 
 import pandas as pd
@@ -12,8 +12,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 
 import torch
-from glob import glob
-from tqdm import tqdm
 
 import torch.nn as nn
 from torch.nn import BatchNorm1d, Dropout
@@ -25,19 +23,25 @@ from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 
 
-# In[37]:
+# In[2]:
 
 
 a= pd.read_csv(r"E:\assignment\insurance\train.csv")
 
 
-# In[38]:
+# In[3]:
 
 
 a.head()
 
 
-# In[39]:
+# In[4]:
+
+
+a["Response"].value_counts(),a["Response"].value_counts(1)
+
+
+# In[5]:
 
 
 data=a
@@ -56,11 +60,10 @@ for i in data.columns[1:]:
 x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=0.3, stratify=target, random_state=42)
 
 
-# In[40]:
+# In[6]:
 
 
-from torch.utils.data import DataLoader
-from torch.utils.data import Dataset
+
 class classification(Dataset):
     def __init__(self,path, label):
         self.x=path
@@ -81,20 +84,20 @@ train_loader= DataLoader(train_data, batch_size=100)
 test_loader= DataLoader(test_data, batch_size=100)
 
 
-# In[41]:
+# In[7]:
 
 
 for batch_idx, (batch_X, batch_y) in enumerate(train_loader):
   break
 
 
-# In[42]:
+# In[8]:
 
 
 batch_X.shape, batch_y.shape
 
 
-# In[43]:
+# In[9]:
 
 
 model=Sequential(
@@ -115,20 +118,20 @@ model=Sequential(
             Sigmoid())
 
 
-# In[44]:
+# In[10]:
 
 
 model
 
 
-# In[45]:
+# In[11]:
 
 
 optimizer = torch.optim.Adam(model.parameters())
 criterion = nn.BCELoss()
 
 
-# In[46]:
+# In[12]:
 
 
 def train(net, train_loader):
@@ -157,13 +160,13 @@ def train(net, train_loader):
         print( epoch, training_loss,acc)
 
 
-# In[47]:
+# In[13]:
 
 
 train(model, train_loader)
 
 
-# In[48]:
+# In[14]:
 
 
 test_prediction = []
@@ -190,7 +193,7 @@ for batch_idx, (batch_x, batch_y) in (enumerate(train_loader)):
             
 
 
-# In[49]:
+# In[15]:
 
 
 test_accuracy = []
@@ -201,7 +204,7 @@ for i in range(len(test_prediction)):
 print('training accuracy: \t', np.average(test_accuracy))
 
 
-# In[50]:
+# In[16]:
 
 
 test_prediction = []
@@ -218,7 +221,7 @@ for batch_idx, (batch_x, batch_y) in (enumerate(train_loader)):
     test_predicted_label = []
     for i in output:
         # defining the threshold value as 0.5
-        if i>=0.:
+        if i>0.:
             test_predicted_label.append(1)
         else:
             test_predicted_label.append(0)
@@ -228,7 +231,7 @@ for batch_idx, (batch_x, batch_y) in (enumerate(train_loader)):
             
 
 
-# In[51]:
+# In[17]:
 
 
 test_accuracy = [] 
@@ -241,7 +244,7 @@ print('training accuracy: \t', np.average(test_accuracy))
 
 # # weighed Random Sampler
 
-# In[52]:
+# In[18]:
 
 
 labels = np.array(y_train)
@@ -254,7 +257,7 @@ class_weights= weight[labels]
 sampler = torch.utils.data.sampler.WeightedRandomSampler(torch.DoubleTensor(class_weights), int(num_samples))
 
 
-# In[53]:
+# In[19]:
 
 
 from torch.utils.data import DataLoader
@@ -279,7 +282,7 @@ train_loader= DataLoader(train_data, batch_size=100, sampler=sampler)
 test_loader= DataLoader(test_data, batch_size=100, sampler= sampler)
 
 
-# In[54]:
+# In[20]:
 
 
 def train1(net, train_loader):
@@ -308,13 +311,13 @@ def train1(net, train_loader):
         print( epoch, training_loss,acc)
 
 
-# In[55]:
+# In[21]:
 
 
 train1(model, train_loader)
 
 
-# In[56]:
+# In[22]:
 
 
 test_prediction = []
@@ -340,7 +343,7 @@ for batch_idx, (batch_x, batch_y) in (enumerate(train_loader)):
             
 
 
-# In[57]:
+# In[23]:
 
 
 test_accuracy = []
@@ -350,19 +353,19 @@ for i in range(len(test_prediction)):
 print('training accuracy: \t', np.average(test_accuracy))
 
 
-# In[58]:
+# In[24]:
 
 
 c= pd.read_csv(r"E:\assignment\insurance\test.csv")
 
 
-# In[59]:
+# In[25]:
 
 
 c.head()
 
 
-# In[60]:
+# In[26]:
 
 
 data1=c
@@ -375,7 +378,7 @@ for i in data1.columns[1:]:
         data1[i]= (data1[i]- data1[i].min())/(data1[i].max()-data1[i].min())
 
 
-# In[61]:
+# In[27]:
 
 
 test_prediction=[]
@@ -394,40 +397,46 @@ for i in y_pred:
 test_prediction.append(test_predicted)
 
 
-# In[62]:
+# In[28]:
 
 
 test_submit= pd.DataFrame(test_prediction)
 test_submit.head()
 
 
-# In[63]:
+# In[29]:
 
 
 test_sub= test_submit.transpose()
 test_sub.head()
 
 
-# In[64]:
+# In[30]:
 
 
 test_sub_nn= pd.concat([c, test_sub], axis=1)
 
 
-# In[65]:
+# In[31]:
 
 
 test_sub_final= test_sub_nn[["id",0]]
 
 
-# In[66]:
+# In[32]:
 
 
 test_sub_final.head()
 
 
-# In[ ]:
+# In[33]:
 
 
 test_sub_final.to_csv("nn_weighed_model.csv")
+
+
+# In[ ]:
+
+
+
 
